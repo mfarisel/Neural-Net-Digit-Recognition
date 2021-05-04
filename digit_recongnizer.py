@@ -4,7 +4,36 @@ import io
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+import torch
+from torch import nn
 
+
+class NeuralNetwork(nn.Module):
+    def __init__(self):
+        super(NeuralNetwork, self).__init__()
+        self.flatten = nn.Flatten()
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(28*28, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 10),
+            nn.ReLU()
+        )
+
+    def forward(self, x):
+        x = self.flatten(x)
+        logits = self.linear_relu_stack(x)
+        return logits
+    
+
+# Initializing NN model
+model = NeuralNetwork()
+model = torch.load('./model.pth')
 
 
 # Initiating the window
@@ -51,12 +80,18 @@ def save():
         for j in range(pix.shape[1]):
             greyscale_img[i][j] = (R[i][j]/3)+(B[i][j]/3)+(G[i][j]/3)
             greyscale_img[i][j] = 255 - greyscale_img[i][j]
-
     
+    greyscale_img = greyscale_img.reshape((1,784))
+    
+    
+    grey_tens = torch.from_numpy(greyscale_img)
+    
+    with torch.no_grad():
+        pred = model(grey_tens.float())
     #imgplot = plt.imshow(greyscale_img, cmap='gray')
     #plt.show()
     
-    print('hi')
+    print(pred.argmax())
 
     
 
