@@ -6,6 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import torch
 from torch import nn
+import time
 
 
 class NeuralNetwork(nn.Module):
@@ -48,10 +49,14 @@ canvas = tk.Canvas(root,width =400, height =400, bg = 'white')
 # Placing the canvas in the top left corner
 canvas.place(relx=0,rely=0)
 
+#initializing text
+NN_Guess_Text = '...'
+
 def clear_canvas():
     t.clear()
 
-def save():
+def submit():
+    global NN_Guess_Text
 
     # Saving the canvas as a Postscript
     ps = t.getscreen().getcanvas().postscript(colormode = 'gray')
@@ -88,10 +93,11 @@ def save():
     
     with torch.no_grad():
         pred = model(grey_tens.float())
-    #imgplot = plt.imshow(greyscale_img, cmap='gray')
-    #plt.show()
     
-    print(pred.argmax())
+    NN_Guess_Text = pred.argmax().item()
+    NN_Guess.config(text = NN_Guess_Text,font =("Courier", 28))
+
+    
 
     
 
@@ -128,8 +134,16 @@ screen.onscreenclick(set_mouse_pos)
 button_clear = tk.Button(root, text = "Clear Canvas",  highlightbackground='gray', command=clear_canvas)
 button_clear.place(relx=.75, rely=.8)
 
-button_save = tk.Button(root, text ="Save",  highlightbackground='gray', command=save)
-button_save.place(relx=.75, rely=.6)
+button_save = tk.Button(root, text ="Submit",  highlightbackground='gray', command=submit)
+button_save.place(relx=.785, rely=.6)
+
+
+NN_Guess = tk.Label(root,text=NN_Guess_Text,height = 1,width=5,bg='gray',highlightthickness=0,font =("Courier", 28))
+NN_Guess.place(relx=.75, rely=.3)
+
+NN_Label = tk.Label(root,text='Neural Net Guess:',height = 1,width=17,bg='gray',highlightthickness=0,font =("Courier", 16))
+NN_Label.place(relx=.69, rely=.2)
+
 
 root.mainloop()
 
